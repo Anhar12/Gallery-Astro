@@ -3,102 +3,128 @@
 const { section, search } = Astro.props;
 ---
 
-<header class="fixed top-0 left-0 right-0 z-30 text-white uppercase transition-all duration-300">
-  <div class="flex justify-between items-center py-4 px-12">
-    <div class="flex items-center ">
+<!-- Mobile Header -->
+<header class="md:hidden fixed top-0 left-0 right-0 z-50 bg-sky-900/30 backdrop-blur-sm uppercase text-white px-4 py-4 flex justify-between items-center">
+  <h1 class="text-xl font-extrabold tracking-wide">Gallery Jomok</h1>
+  <button id="toggle-sidebar" class="text-white text-2xl">
+    <i class="fa-solid fa-bars"></i>
+  </button>
+</header>
+
+<!-- Mobile Sidebar Overlay -->
+<div id="mobile-overlay" class="fixed inset-0 z-40 bg-black/50 hidden"></div>
+
+<!-- Mobile Sidebar -->
+<aside id="mobile-sidebar" class="fixed top-[64px] bottom-0 left-0 w-3/4 max-w-xs bg-sky-900/30 backdrop-blur-sm z-50 transform -translate-x-full transition-transform duration-300 md:hidden">
+  <ul class="p-6 text-white space-y-6 text-base font-semibold">
+    <li><a href="/" class={`${section === 'Home' ? 'text-sky-400' : 'hover:text-sky-400'}`}>Home</a></li>
+    <li><a href="/All" class={`${section === 'All' ? 'text-sky-400' : 'hover:text-sky-400'}`}>All Gallery</a></li>
+    <li><a href="/MyGallery" class={`${section === 'MyGallery' ? 'text-sky-400' : 'hover:text-sky-400'}`}>My Gallery</a></li>
+  </ul>
+</aside>
+
+<!-- Desktop Header -->
+<header id="desktop-header" class="hidden md:flex fixed top-0 left-0 right-0 z-30 text-white uppercase transition-all duration-300">
+  <div class="flex justify-between items-center py-4 px-12 w-full">
+    <div class="flex items-center">
       <h1 class="text-2xl font-extrabold tracking-wide">Gallery Jomok</h1>
     </div>
 
     {(section === 'All' || section == 'MyGallery') && (
-        <form id='search-nav' method="GET" action='' class="flex w-1/3 text-white font-light text-sm group" autocomplete="off">
-            <input type="text" id="search" name="search" class="w-full h-6 px-1 border-b-[1px] border-transparent focus:border-white outline-none transition-all duration-300" placeholder="Cari Gambar" value={search}>
-            <button id="submit-search" type="submit" class="px-3 cursor-pointer hover:scale-110 transition-all duration-300 text-slate-400 hover:text-white group-focus-within:text-white"><i class="fa-solid fa-magnifying-glass"></i></button>
-        </form>
+      <form id='search-nav' method="GET" action='' class="flex w-1/3 text-white font-light text-sm group" autocomplete="off">
+        <input type="text" id="search" name="search" class="w-full h-6 px-1 border-b-[1px] border-transparent focus:border-white outline-none transition-all duration-300" placeholder="Cari Gambar" value={search}>
+        <button id="submit-search" type="submit" class="px-3 cursor-pointer hover:scale-110 transition-all duration-300 text-slate-400 hover:text-white group-focus-within:text-white">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+      </form>
     )}
 
-    <nav class="">
-        <ul class="flex space-x-12 text-sm font-semibold items-center">
-            <li>
-                <a href="/" 
-                    class={`relative inline-block after:absolute after:top-full after:h-[2px] after:transition-all after:duration-300 
-                            ${section === 'Home' ? 'after:w-full after:left-0 after:bg-sky-400 text-sky-400' : 'after:w-0 after:left-1/2 hover:after:w-full hover:after:left-0 after:bg-white'}`}>
-                    Home
-                </a>
-            </li>
-            <li>
-                <a href="/All" 
-                    class={`relative inline-block after:absolute after:top-full after:h-[2px] after:transition-all after:duration-300 
-                            ${section === 'All' ? 'after:w-full after:left-0 after:bg-sky-400 text-sky-400' : 'after:w-0 after:left-1/2 hover:after:w-full hover:after:left-0 after:bg-white'}`}>
-                    All Gallery
-                </a>
-            </li>
-            <li>
-                <a href="/MyGallery" 
-                    class={`relative inline-block after:absolute after:top-full after:h-[2px] after:transition-all after:duration-300 
-                            ${section === 'MyGallery' ? 'after:w-full after:left-0 after:bg-sky-400 text-sky-400' : 'after:w-0 after:left-1/2 hover:after:w-full hover:after:left-0 after:bg-white'}`}>
-                    My Gallery
-                </a>
-            </li>
-            {/* <li>
-                <a href="#" class="relative">
-                    <div class="bg-gradient-to-r from-sky-700 to-sky-900 px-3 py-1 flex items-center hover:bg-gradient-to-r hover:from-sky-900 hover:to-sky-900 transition-colors ease-in-out duration-500">
-                        Login <i class="fa-solid fa-arrow-right-to-bracket ml-2"></i>
-                    </div>
-                    <div class="w-full h-full -z-10 border border-white object-cover absolute transform -translate-y-1/2 -translate-x-1/2 top-[57%] left-[52%]">
-                    </div>
-                </a>
-            </li> */}
-        </ul>
+    <nav>
+      <ul class="flex space-x-12 text-sm font-semibold items-center">
+        <li>
+          <a href="/" 
+            class={`relative inline-block after:absolute after:top-full after:h-[2px] after:transition-all after:duration-300 
+              ${section === 'Home' 
+                ? 'after:w-full after:left-0 after:bg-sky-400 text-sky-400' 
+                : 'after:w-0 after:left-1/2 hover:after:w-full hover:after:left-0 after:bg-white'}`}>
+            Home
+          </a>
+        </li>
+        <li>
+          <a href="/All" 
+            class={`relative inline-block after:absolute after:top-full after:h-[2px] after:transition-all after:duration-300 
+              ${section === 'All' 
+                ? 'after:w-full after:left-0 after:bg-sky-400 text-sky-400' 
+                : 'after:w-0 after:left-1/2 hover:after:w-full hover:after:left-0 after:bg-white'}`}>
+            All Gallery
+          </a>
+        </li>
+        <li>
+          <a href="/MyGallery" 
+            class={`relative inline-block after:absolute after:top-full after:h-[2px] after:transition-all after:duration-300 
+              ${section === 'MyGallery' 
+                ? 'after:w-full after:left-0 after:bg-sky-400 text-sky-400' 
+                : 'after:w-0 after:left-1/2 hover:after:w-full hover:after:left-0 after:bg-white'}`}>
+            My Gallery
+          </a>
+        </li>
+      </ul>
     </nav>
+  </div>
 </header>
 
 <script>
-    let search = $('#search').val();
-
-    function searchActive() {
-        $('#search-nav #search')
-            .addClass('border-white')
-            .removeClass('border-transparent');
-        $('#search-nav #submit-search')
-            .addClass('text-white scale-110')
-            .removeClass('text-slate-400');
-    }
-
-    function searchInactive() {
-        $('#search-nav #search')
-            .addClass('border-transparent')
-            .removeClass('border-white');
-        $('#search-nav #submit-search')
-            .addClass('text-slate-400')
-            .removeClass('text-white scale-110');
-    }
-
-    if (search) {
-        searchActive();
+  // Scroll effect (desktop + mobile)
+  function scrollCheck() {
+    const scroll = window.scrollY;
+    if (scroll > 10) {
+      $('#desktop-header').addClass('bg-sky-900/30 backdrop-blur-sm');
     } else {
-        searchInactive();
+      $('#desktop-header').removeClass('bg-sky-900/30 backdrop-blur-sm');
     }
+  }
 
-    $('#search').on('change', function () {
-        if ($(this).val()) {
-            searchActive();
-        } else {
-            searchInactive();
-        }
-    })
-
-    function scrollCheck() {
-        const scroll = window.scrollY;
-        if (scroll > 10) {
-            $('header').addClass('bg-sky-900/30 backdrop-blur-sm');
-        } else {
-            $('header').removeClass('bg-sky-900/30 backdrop-blur-sm');
-        }
-    }
-
-    window.onscroll = function () {
-        scrollCheck()
-    }
-
+  window.onscroll = function () {
     scrollCheck();
+  };
+
+  scrollCheck();
+
+  // Sidebar toggle (mobile)
+  const sidebar = $('#mobile-sidebar');
+  const overlay = $('#mobile-overlay');
+  const toggleBtn = $('#toggle-sidebar');
+
+  function openSidebar() {
+    sidebar.removeClass('-translate-x-full');
+    overlay.removeClass('hidden');
+  }
+
+  function closeSidebar() {
+    sidebar.addClass('-translate-x-full');
+    overlay.addClass('hidden');
+  }
+
+  toggleBtn?.on('click', () => {
+    if (sidebar.hasClass('-translate-x-full')) {
+      openSidebar();
+    } else {
+      closeSidebar();
+    }
+  });
+
+  overlay?.on('click', closeSidebar);
+
+  function sidebarCheck() {
+    const width = window.innerWidth;
+    if (width > 768) {
+      closeSidebar();
+    }
+  }
+  
+  window.onresize = function () {
+    sidebarCheck();
+  };
+
+  sidebarCheck();
 </script>

@@ -10,7 +10,13 @@ const { data: images, error } = await supabase
 ---
 
 <Template title="All Gallery" section="All">
-  <div class="relative min-h-screen py-20 px-12 space-y-6">
+  <div class="relative min-h-screen py-20 md:px-12 md:space-y-6 space-y-2">
+    <form id="search-mob" method="GET" action='' class="flex w-full text-white font-light text-sm group md:hidden px-4" autocomplete="off">
+      <input type="text" id="search-mobile" name="search-mobile" class="w-full h-6 px-1 border-b-[1px] border-transparent focus:border-white outline-none transition-all duration-300" placeholder="Cari Gambar">
+      <button id="submit-search-mobile" type="submit" class="px-3 cursor-pointer hover:scale-110 transition-all duration-300 text-slate-400 hover:text-white group-focus-within:text-white">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </button>
+    </form>
 
     {error && (
       <p class="text-red-500 text-center mb-4">Gagal memuat gambar: {error.message}</p>
@@ -35,13 +41,63 @@ const { data: images, error } = await supabase
 </Template>
 
 <script>
-  $('#search-nav').on('submit', function (e) {
+  let search = $('#search').val();
+
+  function searchActive() {
+    $('#search-nav #search')
+      .addClass('border-white')
+      .removeClass('border-transparent');
+    $('#search-mob #search-mobile')
+      .addClass('border-white')
+      .removeClass('border-transparent');
+
+    $('#search-nav #submit-search')
+      .addClass('text-white scale-110')
+      .removeClass('text-slate-400');
+    $('#search-mob #submit-search-mobile')
+      .addClass('text-white scale-110')
+      .removeClass('text-slate-400');
+  }
+
+  function searchInactive() {
+    $('#search-nav #search')
+      .addClass('border-transparent')
+      .removeClass('border-white');
+    $('#search-mob #search-mobile')
+      .addClass('border-transparent')
+      .removeClass('border-white');
+    
+    $('#search-nav #submit-search')
+      .addClass('text-slate-400')
+      .removeClass('text-white scale-110');
+    $('#search-mob #submit-search-mobile')
+      .addClass('text-slate-400')
+      .removeClass('text-white scale-110');
+  }
+
+  if (search) {
+    searchActive();
+  } else {
+    searchInactive();
+  }
+
+  $('#search, #search-mobile').on('change', function () {
+    $('#search').val($(this).val());
+    $('#search-mobile').val($(this).val());
+    if ($(this).val()) {
+      searchActive();
+    } else {
+      searchInactive();
+    }
+  });
+
+  $('#search-nav, #search-mob').on('submit', function (e) {
     e.preventDefault();
     const keyword = $('#search').val().toLowerCase().trim();
     filterGallery(keyword);
   });
 
-  $('#search').on('input', function () {
+  $('#search, #search-mobile').on('input', function () {
     const keyword = $(this).val().toLowerCase().trim();
     filterGallery(keyword);
   });
@@ -70,6 +126,7 @@ const { data: images, error } = await supabase
   const searchQuery = urlParams.get('search');
   if (searchQuery) {
     $('#search').val(searchQuery);
+    $('#search-mobile').val(searchQuery);
     filterGallery(searchQuery.toLowerCase().trim());
   }
 </script>
