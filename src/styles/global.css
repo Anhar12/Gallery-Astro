@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+body {
+    font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+}
+
+@keyframes modal-open {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes modal-close {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+
+.modal-open {
+  animation-name: modal-open;
+  animation-duration: 0.3s;
+}
+
+.modal-close {
+  animation-name: modal-close;
+  animation-duration: 0.3s;
+}
+
+.gallery-masonry {
+  column-count: 4;
+  column-gap: 1rem;
+  padding: 1rem;
+}
+
+@media (max-width: 1024px) {
+  .gallery-masonry {
+    column-count: 3;
+  }
+}
+@media (max-width: 768px) {
+  .gallery-masonry {
+    column-count: 2;
+  }
+}
+@media (max-width: 480px) {
+  .gallery-masonry {
+    column-count: 1;
+  }
+}
+
+.gallery-item {
+  break-inside: avoid;
+  margin-bottom: 1rem;
+  background-color: #fff2;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.gallery-item img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.caption {
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  text-align: center;
+  color: white;
+}

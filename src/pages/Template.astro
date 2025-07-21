@@ -1,0 +1,36 @@
+---
+import Header from "../components/Header.astro";
+import "../styles/global.css";
+import { Image } from 'astro:assets';
+import bgHome from '../assets/bgHome.png';
+import Swal from 'sweetalert2';
+
+const { title, section, search } = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{title}</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://kit.fontawesome.com/8bd97b3832.js" crossorigin="anonymous"></script>
+  </head>
+  <body class="relative min-h-screen">
+    <Header section={section} search={search}/>
+    
+    <Image 
+      src={bgHome}
+      alt="Background Home"
+      loading="lazy"
+      class="w-full h-screen top-0 left-0 fixed object-cover z-0"
+    />
+
+    <div class="w-full h-screen top-0 left-0 fixed object-cover bg-black/30 z-0"></div>
+
+    <main class="relative">
+      <slot />
+    </main>
+
+  </body>
+</html>

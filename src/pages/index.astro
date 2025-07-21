@@ -1,16 +1,12 @@
 ---
-
+import Template from "./Template.astro";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Template title="Home" section="Home">
+  <div class="relative min-h-screen">
+    <form autocomplete="off" method="get" action='All' class="w-1/2 z-20 text-white absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 flex">
+      <input type="text" id="search" name="search" class="w-full h-10 border-b-[2px] border-slate-400 focus:border-white outline-none transition-all duration-300" placeholder="Cari Gambar">
+      <button type="submit" class="px-3 cursor-pointer hover:scale-150 transition-all duration-300"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </form>
+  </div>
+</Template>

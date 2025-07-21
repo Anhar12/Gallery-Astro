@@ -1,0 +1,223 @@
+---
+---
+
+<div class="w-full flex justify-end z-30">
+  <button id="open-modal" class="relative group cursor-pointer">
+      
+    <div class="relative z-10 bg-gradient-to-r from-sky-700 to-sky-900 text-white py-2 px-4 text-sm group-hover:from-sky-900 group-hover:to-sky-900 transition-colors duration-300">
+      Tambah Gambarmu <i class="fas fa-plus ml-2"></i>
+    </div>
+
+    <div class="absolute z-0 w-full h-full border border-white transform -translate-y-1/2 -translate-x-1/2 left-[51%] top-[55%]"></div>
+  </button>
+</div>
+
+<div id="upload-modal" class="top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 fixed w-full h-full items-center justify-center hidden z-40">
+  <div id="modal-body" class="bg-white shadow-lg w-[35%] relative z-100 transition-all duration-300">
+    <div>
+      <div class="flex justify-between items-center pb-2 bg-sky-600 p-4 pt-2">
+        <h2 id="modal-title" class="text-xl font-semibold text-white">Upload Gambar</h2>
+  
+        <button id="close-modal" class="text-sky-300 transition duration-300 hover:text-white text-right cursor-pointer text-2xl">
+          &times;
+        </button>
+      </div>
+  
+      <form id="upload-form" method="post" action="" enctype="multipart/form-data" class="p-4 pt-2" autocomplete="off">
+        <div class="mb-4">
+          <label for="image" class="text-gray-800 text-sm">Pilih Gambar</label>
+          <input
+            type="file"
+            name="image"
+            id="image"
+            accept="image/*"
+            class="block w-full text-sm text-gray-900 border border-gray-300 cursor-pointer focus:outline-none focus:ring-1 focus:ring-sky-500 file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-semibold file:bg-sky-100 file:text-sky-700 hover:file:bg-sky-100"
+          />
+        </div>
+
+        <div class="mb-4">
+          <label for="name" class="text-gray-800 text-sm">Nama Gambar</label>
+          <input type="text" id="name" name="name" class="w-full px-2 py-1 ring ring-gray-300 mt-2 outline-none focus:ring-sky-600 text-sm">
+        </div>
+  
+        <button type="submit" class="w-full cursor-pointer group relative">
+          <div class="uppercase font-semibold bg-gradient-to-r from-sky-700 to-sky-900 text-white py-2 px-4 text-sm group-hover:from-sky-900 group-hover:to-sky-900 transition-colors duration-300 flex justify-center gap-3 items-center">
+            Upload <i class="fas fa-upload"></i>
+          </div>
+  
+          <div class="w-full h-full border border-sky-900 absolute transform -translate-y-1/2 -translate-x-1/2 left-[50.5%] top-[56%] -z-10"></div>
+        </button>
+      </form>
+    </div>
+    <div class="w-full h-full border border-white absolute transform -translate-y-1/2 -translate-x-1/2 left-[50.5%] top-[51%] -z-10"></div>
+  </div>
+  <div id="overlay" class="w-full h-full bg-black/50 absolute top-0 left-0"></div>
+</div>
+
+<div id="loading-spinner" class="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-slate-500/50 z-40 hidden">
+  <div role="status">
+      <svg aria-hidden="true" class="w-10 h-10 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+          <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+      </svg>
+      <span class="sr-only">Loading...</span>
+  </div>
+</div>
+
+<script>
+  import Swal from 'sweetalert2';
+
+  let submitMode = 'add';
+  let idUpdate = '';
+
+  function showLoading() {
+    $('#loading-spinner').removeClass('hidden');
+  }
+
+  function hideLoading() {
+    $('#loading-spinner').addClass('hidden');
+  }
+
+  function openModal() {
+    $('#upload-modal')
+      .addClass('flex')
+      .removeClass('hidden');
+
+    $('#modal-body')
+      .removeClass('modal-close')
+      .addClass('modal-open');
+  }
+
+  function closeModal() {
+    setTimeout(() => {
+      $('#upload-modal')
+        .removeClass('flex')
+        .addClass('hidden');
+    }, 200);
+    
+    $('#modal-body')
+      .removeClass('modal-open')
+      .addClass('modal-close');
+
+    $('input').val('');
+  }
+
+  $(document).ready(function() {
+    $('#open-modal').click(function() {
+      submitMode = 'add';
+      openModal();
+    });
+
+    $('#close-modal, #overlay').click(function() {
+      closeModal();
+    });
+
+    $('.edit-button').click(function() {
+      const id = $(this).data('id');
+      const name = $(this).data('name');
+
+      $('#name').val(name);
+
+      submitMode = 'update';
+      idUpdate = id;
+
+      openModal();
+    });
+
+    $('#upload-form').on('submit', function (e) {
+      e.preventDefault();
+
+      const file = $('#image')[0].files[0];
+      const name = $('#name').val();
+
+      if (!name) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Upload Gagal',
+          text: 'Tidak ada nama gambar.',
+        });
+        return;
+      }
+      
+      if (submitMode === 'add') {
+        if (!file) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Upload Gagal',
+            text: 'Tidak ada gambar diupload.',
+          });
+          return;
+        }
+        const formData = new FormData();
+        formData.append('name', $('#name').val());
+        formData.append('image', file);
+  
+        $.ajax({
+          url: '/api/gallery',
+          type: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          beforeSend: function () {
+            showLoading();
+          },
+          success: function (res) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Upload Berhasil',
+              text: 'Gambar berhasil diupload.',
+            }).then(() => {
+              window.location.reload();
+            });
+          },
+          error: function (xhr) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Upload Gagal',
+              text: 'Gambar gagal diupload: ' + xhr.responseText,
+            });
+          },
+          complete: function () {
+            hideLoading();
+          },
+        });
+      } else if (submitMode === 'update') {
+        const formData = new FormData();
+        formData.append('id', idUpdate);
+        formData.append('name', $('#name').val());
+        formData.append('image', file);
+  
+        $.ajax({
+          url: '/api/gallery',
+          type: 'PUT',
+          data: formData,
+          processData: false,
+          contentType: false,
+          beforeSend: function () {
+            showLoading();
+          },
+          success: function (res) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Update Berhasil',
+              text: 'Gambar berhasil diperbarui.',
+            }).then(() => {
+              window.location.reload();
+            });
+          },
+          error: function (xhr) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Update Gagal',
+              text: 'Gambar gagal diperbarui: ' + xhr.responseText,
+            });
+          },
+          complete: function () {
+            hideLoading();
+          },
+        });
+
+      }
+    });
+  });
+</script>

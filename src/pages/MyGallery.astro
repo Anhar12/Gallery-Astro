@@ -1,0 +1,154 @@
+---
+import Template from "./Template.astro";
+import Upload from "../components/Upload.astro";
+import { supabase } from "../lib/supabase";
+
+const { data: images, error } = await supabase
+  .from("Gallery")
+  .select("id, name, url, created_date")
+  .order("id", { ascending: false });
+---
+
+<Template title="My Gallery" section="MyGallery">
+  <div class="relative min-h-screen py-20 px-12 space-y-6">
+    <Upload />
+    
+    <div>
+        {error && (
+            <p class="text-red-500 text-center mb-4">Gagal memuat gambar: {error.message}</p>
+        )}
+
+        <div
+            id="not-found"
+            class="text-center text-gray-400 hidden"
+        >
+        Tidak ada gambar yang ditemukan.
+        </div>
+
+        <div class="gallery-masonry">
+          {images.map((img) => (
+            <div class="gallery-item cursor-pointer hover:shadow-[0_0_10px_rgba(115,212,255,0.3)] transition-shadow duration-300 shadow-sky-200 p-2 relative" key={img.id} data-name={img.name}>
+              <div class="flex justify-between items-center">
+                <div>
+                  <p class="caption">
+                    {new Date(img.created_date).toLocaleDateString()}
+                  </p>
+                </div>
+
+                <div class="flex gap-3 pr-1">
+                  <button data-id={img.id} data-name={img.name} class="edit-button text-yellow-400 cursor-pointer transition-all duration-300 hover:scale-110">
+                    <i class="fa-solid fa-pen"></i>
+                  </button>
+
+                  <button data-id={img.id} data-url={img.url} class="delete-button text-red-500 cursor-pointer transition-all duration-300 hover:scale-110">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+
+              <img src={img.url} alt={img.name} />
+              
+              <p class="caption">{img.name}</p>
+            </div>
+          ))}
+        </div>
+    </div>
+  </div>
+</Template>
+
+<script>
+  import Swal from 'sweetalert2';
+  
+  function showLoading(){
+    $('#loading-spinner').removeClass('hidden');
+  }
+
+  function hideLoading(){
+    $('#loading-spinner').addClass('hidden');
+  }
+
+  $('#search-nav').on('submit', function (e) {
+    e.preventDefault();
+    const keyword = $('#search').val().toLowerCase().trim();
+    filterGallery(keyword);
+  });
+
+  $('#search').on('input', function () {
+    const keyword = $(this).val().toLowerCase().trim();
+    filterGallery(keyword);
+  });
+
+  function filterGallery(keyword) {
+    let found = false;
+
+    $('.gallery-item').each(function () {
+      const name = $(this).data('name');
+      if (name.includes(keyword)) {
+        $(this).show();
+        found = true;
+      } else {
+        $(this).hide();
+      }
+    });
+
+    if (found) {
+      $('#not-found').hide();
+    } else {
+      $('#not-found').show();
+    }
+  }
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const searchQuery = urlParams.get('search');
+  if (searchQuery) {
+    $('#search').val(searchQuery);
+    filterGallery(searchQuery.toLowerCase().trim());
+  }
+
+  $('.delete-button').on('click', function () {
+    const id = $(this).data('id');
+    const url = $(this).data('url');
+
+    Swal.fire({
+      title: 'Hapus Gambar',
+      text: 'Apakah Anda yakin ingin menghapus gambar ini?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Hapus',
+      cancelButtonText: 'Batal'
+    }).then(function (result) {
+      if (result.isConfirmed) {
+        $.ajax({
+          url: '/api/gallery',
+          type: 'DELETE',
+          data: {id, url},
+          beforeSend: function () {
+            showLoading();
+          },
+          success: function (res) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Hapus Berhasil',
+              text: 'Gambar berhasil dihapus.',
+            }).then(() => {
+              window.location.reload();
+            });
+          },
+          error: function (xhr) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Hapus Gagal',
+              text: 'Gambar gagal dihapus: ' + xhr.responseText,
+            });
+          },
+          complete: function () {
+            hideLoading();
+          }
+        });
+      }
+    }); 
+  }); 
+
+</script>
