@@ -82,7 +82,7 @@ const { data: images, error } = await supabase
     let found = false;
 
     $('.gallery-item').each(function () {
-      const name = $(this).data('name');
+      const name = $(this).data('name').toLowerCase();
       if (name.includes(keyword)) {
         $(this).show();
         found = true;
