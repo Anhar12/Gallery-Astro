@@ -31,12 +31,19 @@ const { data: images, error } = await supabase
 
     <div class="gallery-masonry">
       {images.map((img) => (
-        <div class="gallery-item cursor-pointer hover:shadow-[0_0_10px_rgba(115,212,255,0.3)] transition-shadow duration-300 shadow-sky-200 p-2" key={img.id} data-name={img.name}>
+        <div class="gallery-item cursor-pointer hover:shadow-[0_0_10px_rgba(115,212,255,0.3)] transition-shadow duration-300 shadow-sky-200 p-2" key={img.id} data-name={img.name} data-url={img.url} data-date={new Date(img.created_date).toLocaleDateString()}>
           <img src={img.url} alt={img.name} />
           <p class="caption">{img.name}</p>
         </div>
       ))}
     </div>
+  </div>
+  <div id="detail" class="w-full h-screen relative top-0 left-0 z-40 hidden cursor-pointer">
+    <div id="detail-body" class="p-3 w-[90%] md:w-auto bg-white rounded-md fixed transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 flex justify-center items-center flex-col z-10">
+      <p id="detail-name" class="text-black text-sm font-semibold md:text-lg text-center pb-2"></p>
+      <img id="detail-image" class="md:h-[80vh]" src="" alt="" />
+    </div>
+    <div class="w-full h-screen bg-black/50 fixed transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 z-0"></div>
   </div>
 </Template>
 
@@ -129,4 +136,41 @@ const { data: images, error } = await supabase
     $('#search-mobile').val(searchQuery);
     filterGallery(searchQuery.toLowerCase().trim());
   }
+
+  function openDetail() {
+    $('#detail')
+      .addClass('flex')
+      .removeClass('hidden');
+
+    $('#detail-body')
+      .removeClass('modal-close')
+      .addClass('modal-open');
+  }
+
+  function closeDetail() {
+    setTimeout(() => {
+      $('#detail')
+        .removeClass('flex')
+        .addClass('hidden');
+    }, 200);
+    
+    $('#detail-body')
+      .removeClass('modal-open')
+      .addClass('modal-close');
+  }
+
+  $('#detail').click(function () {
+    closeDetail();
+  });
+  
+  $('.gallery-item').click(function () {
+    const name = $(this).data('name');
+    const url = $(this).data('url');
+
+    $('#detail-image').attr('src', url);
+    $('#detail-image').attr('alt', name);
+    $('#detail-name').text(name);
+
+    openDetail();
+  });
 </script>
