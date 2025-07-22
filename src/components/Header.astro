@@ -1,11 +1,16 @@
 ---
 // src/components/Header.astro
 const { section, search } = Astro.props;
+import Modal from './Modal.astro';
+import FormLogin from './FormLogin.astro';
+import FormRegis from './FormRegis.astro';
 ---
 
 <!-- Mobile Header -->
 <header class="md:hidden fixed top-0 left-0 right-0 z-50 bg-sky-900/30 backdrop-blur-sm uppercase text-white px-4 py-4 flex justify-between items-center">
-  <h1 class="text-xl font-extrabold tracking-wide">Gallery Jomok</h1>
+  <a href="/" class="flex items-center gap-2">
+    <h1 class="text-xl font-extrabold tracking-wide">Gallery Jomok</h1>
+  </a>
   <button id="toggle-sidebar" class="text-white text-2xl">
     <i class="fa-solid fa-bars"></i>
   </button>
@@ -26,9 +31,9 @@ const { section, search } = Astro.props;
 <!-- Desktop Header -->
 <header id="desktop-header" class="hidden md:flex fixed top-0 left-0 right-0 z-30 text-white uppercase transition-all duration-300">
   <div class="flex justify-between items-center py-4 px-12 w-full">
-    <div class="flex items-center">
+    <a href="/" class="flex items-center gap-2">
       <h1 class="text-2xl font-extrabold tracking-wide">Gallery Jomok</h1>
-    </div>
+    </a>
 
     {(section === 'All' || section == 'MyGallery') && (
       <form id='search-nav' method="GET" action='' class="flex w-1/3 text-white font-light text-sm group" autocomplete="off">
@@ -40,7 +45,7 @@ const { section, search } = Astro.props;
     )}
 
     <nav>
-      <ul class="flex space-x-12 text-sm font-semibold items-center">
+      <ul class="flex space-x-10 text-sm font-semibold items-center">
         <li>
           <a href="/" 
             class={`relative inline-block after:absolute after:top-full after:h-[2px] after:transition-all after:duration-300 
@@ -68,10 +73,24 @@ const { section, search } = Astro.props;
             My Gallery
           </a>
         </li>
+        <li>
+          <button id="login-button" class="relative group cursor-pointer">
+            <div class="relative z-10 bg-gradient-to-r from-sky-700 to-sky-900 text-white md:py-2 md:px-4 text-sm group-hover:from-sky-900 group-hover:to-sky-900 transition-colors duration-300 uppercase">
+              Login <i class="fa-solid fa-arrow-right-to-bracket ml-1"></i>
+            </div>
+
+            <div class="absolute z-0 w-full h-full border border-white transform -translate-y-1/2 -translate-x-1/2 left-[calc(50%+2px)] top-[calc(50%+2px)]"></div>
+          </button>
+        </li>
       </ul>
     </nav>
   </div>
 </header>
+
+<Modal name="login" title="LOGIN">
+  <FormLogin />
+  <FormRegis />
+<Modal />
 
 <script>
   // Scroll effect (desktop + mobile)
@@ -127,4 +146,59 @@ const { section, search } = Astro.props;
   };
 
   sidebarCheck();
+
+  function openModal() {
+    $('#login-modal')
+      .addClass('flex')
+      .removeClass('hidden');
+
+    $('#login-modal-body')
+      .removeClass('modal-close')
+      .addClass('modal-open');
+  }
+
+  function closeModal() {
+    setTimeout(() => {
+      $('#login-modal')
+        .removeClass('flex')
+        .addClass('hidden');
+    }, 200);
+    
+    $('#login-modal-body')
+      .removeClass('modal-open')
+      .addClass('modal-close');
+
+    $('input').val('');
+  }
+
+  $('#login-button, #login-button-mobile').click(function() {
+    openModal();
+  });
+
+  $('#login-modal-close, #login-overlay').click(function() {
+    $('#login-form').removeClass('hidden');
+    $('#regis-form').addClass('hidden');
+    $('#login-modal-title').text('LOGIN');
+    closeModal();
+  });
+
+  $('#login-regis').click(function() {
+    closeModal();
+    $('#login-form').addClass('hidden');
+    $('#regis-form').removeClass('hidden');
+    $('#login-modal-title').text('REGISTRASI');
+    setTimeout(() => {
+      openModal();
+    }, 200);
+  });
+
+  $('#regis-login').click(function() {
+    closeModal();
+    $('#login-form').removeClass('hidden');
+    $('#regis-form').addClass('hidden');
+    $('#login-modal-title').text('LOGIN');
+    setTimeout(() => {
+      openModal();
+    }, 200);
+  });
 </script>

@@ -25,7 +25,7 @@ export const POST: APIRoute = async ({ request }) => {
     .storage
     .from("gallery")
     .upload(fileName, file, {
-      cacheControl: "3600",
+      cacheControl: "86400",
       upsert: false,
     });
 
@@ -96,7 +96,7 @@ export const PUT: APIRoute = async ({ request }) => {
         .storage
         .from("gallery")
         .upload(newFileName, file, {
-          cacheControl: "3600",
+          cacheControl: "86400",
           upsert: false,
         });
 

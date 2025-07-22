@@ -1,11 +1,20 @@
 ---
 import Template from "./Template.astro";
 import Upload from "../components/Upload.astro";
+import Detail from "../components/Detail.astro";
 import { supabase } from "../lib/supabase";
 
 const { data: images, error } = await supabase
   .from("Gallery")
-  .select("id, name, url, created_date")
+  .select(`
+    id, 
+    name, 
+    url, 
+    created_date,
+    user(
+      full_name
+    )
+  `)
   .order("id", { ascending: false });
 ---
 
@@ -27,11 +36,11 @@ const { data: images, error } = await supabase
 
         <div class="gallery-masonry p-3">
           {images.map((img) => (
-            <div class="gallery-item cursor-pointer hover:shadow-[0_0_10px_rgba(115,212,255,0.3)] transition-shadow duration-300 shadow-sky-200 p-2 relative" key={img.id} data-name={img.name} data-url={img.url} data-date={new Date(img.created_date).toLocaleDateString()}>
+            <div class="gallery-item cursor-pointer hover:shadow-[0_0_10px_rgba(115,212,255,0.3)] transition-shadow duration-300 shadow-sky-200 p-2 relative" key={img.id} data-name={img.name} data-url={img.url}>
               <div class="flex justify-between items-center pb-2 pt-1 px-1">
                 <div>
                   <p class="text-white text-sm md:text-md">
-                    {new Date(img.created_date).toLocaleDateString()}
+                    {/* {img.user? img.user.full_name : ""} */}
                   </p>
                 </div>
 
@@ -46,63 +55,19 @@ const { data: images, error } = await supabase
                 </div>
               </div>
 
-              <img src={img.url} alt={img.name} />
+              <img src={img.url} alt={img.name} loading="lazy" />
               
               <p class="text-white text-sm md:text-md text-center pt-2">{img.name}</p>
             </div>
           ))}
         </div>
     </div>
-
-    <div id="detail" class="w-full h-screen relative top-0 left-0 z-40 hidden cursor-pointer">
-      <div id="detail-body" class="p-3 w-[90%] md:w-auto bg-white rounded-md fixed transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 flex justify-center items-center flex-col z-10">
-        <p id="detail-name" class="text-black text-sm font-semibold md:text-lg text-center pb-2"></p>
-        <img id="detail-image" class="md:h-[80vh]" src="" alt="" />
-      </div>
-      <div class="w-full h-screen bg-black/50 fixed transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 z-0"></div>
-    </div>
+    <Detail />
   </div>
 </Template>
 
 <script>
   import Swal from 'sweetalert2';
-  
-  function openDetail() {
-    $('#detail')
-      .addClass('flex')
-      .removeClass('hidden');
-
-    $('#detail-body')
-      .removeClass('modal-close')
-      .addClass('modal-open');
-  }
-
-  function closeDetail() {
-    setTimeout(() => {
-      $('#detail')
-        .removeClass('flex')
-        .addClass('hidden');
-    }, 200);
-    
-    $('#detail-body')
-      .removeClass('modal-open')
-      .addClass('modal-close');
-  }
-
-  $('#detail').click(function () {
-    closeDetail();
-  });
-  
-  $('.gallery-item').click(function () {
-    const name = $(this).data('name');
-    const url = $(this).data('url');
-
-    $('#detail-image').attr('src', url);
-    $('#detail-image').attr('alt', name);
-    $('#detail-name').text(name);
-
-    openDetail();
-  });
 
   function showLoading(){
     $('#loading-spinner').removeClass('hidden');
@@ -110,95 +75,6 @@ const { data: images, error } = await supabase
 
   function hideLoading(){
     $('#loading-spinner').addClass('hidden');
-  }
-
-  let search = $('#search').val();
-
-  function searchActive() {
-    $('#search-nav #search')
-      .addClass('border-white')
-      .removeClass('border-transparent');
-    $('#search-mob #search-mobile')
-      .addClass('border-white')
-      .removeClass('border-transparent');
-
-    $('#search-nav #submit-search')
-      .addClass('text-white scale-110')
-      .removeClass('text-slate-400');
-    $('#search-mob #submit-search-mobile')
-      .addClass('text-white scale-110')
-      .removeClass('text-slate-400');
-  }
-
-  function searchInactive() {
-    $('#search-nav #search')
-      .addClass('border-transparent')
-      .removeClass('border-white');
-    $('#search-mob #search-mobile')
-      .addClass('border-transparent')
-      .removeClass('border-white');
-    
-    $('#search-nav #submit-search')
-      .addClass('text-slate-400')
-      .removeClass('text-white scale-110');
-    $('#search-mob #submit-search-mobile')
-      .addClass('text-slate-400')
-      .removeClass('text-white scale-110');
-  }
-
-  if (search) {
-    searchActive();
-  } else {
-    searchInactive();
-  }
-
-  $('#search, #search-mobile').on('change', function () {
-    $('#search').val($(this).val());
-    $('#search-mobile').val($(this).val());
-    if ($(this).val()) {
-      searchActive();
-    } else {
-      searchInactive();
-    }
-  });
-
-  $('#search-nav, #search-mob').on('submit', function (e) {
-    e.preventDefault();
-    const keyword = $('#search').val().toLowerCase().trim();
-    filterGallery(keyword);
-  });
-
-  $('#search, #search-mobile').on('input', function () {
-    const keyword = $(this).val().toLowerCase().trim();
-    filterGallery(keyword);
-  });
-
-  function filterGallery(keyword) {
-    let found = false;
-
-    $('.gallery-item').each(function () {
-      const name = $(this).data('name').toLowerCase();
-      if (name.includes(keyword)) {
-        $(this).show();
-        found = true;
-      } else {
-        $(this).hide();
-      }
-    });
-
-    if (found) {
-      $('#not-found').hide();
-    } else {
-      $('#not-found').show();
-    }
-  }
-
-  const urlParams = new URLSearchParams(window.location.search);
-  const searchQuery = urlParams.get('search');
-  if (searchQuery) {
-    $('#search').val(searchQuery);
-    $('#search-mobile').val(searchQuery);
-    filterGallery(searchQuery.toLowerCase().trim());
   }
 
   $('.delete-button').on('click', function (e) {
@@ -247,5 +123,7 @@ const { data: images, error } = await supabase
       }
     }); 
   }); 
-
 </script>
+
+
+<script src="../scripts/search.js"></script>

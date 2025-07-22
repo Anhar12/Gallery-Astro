@@ -3,7 +3,6 @@ import Header from "../components/Header.astro";
 import "../styles/global.css";
 import { Image } from 'astro:assets';
 import bgHome from '../assets/bgHome.png';
-import Swal from 'sweetalert2';
 
 const { title, section, search } = Astro.props;
 ---
@@ -13,6 +12,7 @@ const { title, section, search } = Astro.props;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>{title}</title>
+    <link rel="icon" type="image/png" href="/rian.png" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://kit.fontawesome.com/8bd97b3832.js" crossorigin="anonymous"></script>
   </head>
