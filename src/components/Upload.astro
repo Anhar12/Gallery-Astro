@@ -21,8 +21,16 @@ import Modal from './Modal.astro'
 
 <Modal name="upload" title="Tambah Gambar">
   <form id="upload-form" method="post" action="" enctype="multipart/form-data" class="p-4 pt-2" autocomplete="off">
-    <div class="mb-4">
-      <label for="image" class="text-gray-800 text-sm">Pilih Gambar</label>
+    <div class="mb-4 mt-3 relative group">
+      <label for="name" class="text-gray-500 text-sm absolute transition-all duration-300 transform -translate-y-1/2 top-1/2 left-0 mx-2 bg-white group-focus-within:top-0 group-focus-within:text-xs group-focus-within:px-1 group-focus-within:text-sky-600">Nama Gambar</label>
+      <input type="text" id="name" name="name" class="w-full p-2 pr-8 ring ring-gray-300 outline-none focus:ring-sky-600 text-sm" maxlength="150">
+      <span class="absolute right-0 top-1/2 transform -translate-y-1/2 text-gray-500 group-focus-within:text-sky-600 p-2 cursor-pointer transition-all duration-300">
+        <i class="fa-solid fa-image"></i>
+      </span>
+    </div>
+
+    <div class="mb-5">
+      <label for="image" class="text-gray-500 text-sm">Pilih Gambar</label>
       <input
         type="file"
         name="image"
@@ -30,11 +38,6 @@ import Modal from './Modal.astro'
         accept="image/*"
         class="block w-full text-sm text-gray-900 border border-gray-300 cursor-pointer focus:outline-none focus:ring-1 focus:ring-sky-500 file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-semibold file:bg-sky-100 file:text-sky-700 hover:file:bg-sky-100"
       />
-    </div>
-
-    <div class="mb-4">
-      <label for="name" class="text-gray-800 text-sm">Nama Gambar</label>
-      <input type="text" id="name" name="name" class="w-full px-2 py-1 ring ring-gray-300 mt-2 outline-none focus:ring-sky-600 text-sm">
     </div>
 
     <button type="submit" class="w-full cursor-pointer group relative">
@@ -83,6 +86,8 @@ import Modal from './Modal.astro'
       .addClass('modal-close');
 
     $('input').val('');
+    
+    $('input').prev().removeClass('top-0 px-1 text-xs').addClass('top-1/2 text-sm');
   }
 
   $(document).ready(function() {
@@ -99,8 +104,16 @@ import Modal from './Modal.astro'
       e.stopPropagation();
       const id = $(this).data('id');
       const name = $(this).data('name');
+      const input = $('#name');
+      const label = input.prev();
 
-      $('#name').val(name);
+      input.val(name);
+
+      if (name) {
+        label.addClass('top-0 px-1 text-xs').removeClass('top-1/2 text-sm');
+      } else {
+        label.removeClass('top-0 px-1 text-xs').addClass('top-1/2 text-sm');
+      }
 
       submitMode = 'update';
       idUpdate = id;
@@ -113,25 +126,8 @@ import Modal from './Modal.astro'
 
       const file = $('#image')[0].files[0];
       const name = $('#name').val();
-
-      if (!name) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Upload Gagal',
-          text: 'Tidak ada nama gambar.',
-        });
-        return;
-      }
       
       if (submitMode === 'add') {
-        if (!file) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Upload Gagal',
-            text: 'Tidak ada gambar diupload.',
-          });
-          return;
-        }
         const formData = new FormData();
         formData.append('name', $('#name').val());
         formData.append('image', file);
@@ -148,17 +144,18 @@ import Modal from './Modal.astro'
           success: function (res) {
             Swal.fire({
               icon: 'success',
-              title: 'Upload Berhasil',
-              text: 'Gambar berhasil diupload.',
+              title: 'Upload Successfully',
+              text: 'Image uploaded successfully.',
             }).then(() => {
               window.location.reload();
             });
           },
           error: function (xhr) {
+            const message = xhr.responseText || 'Unknown error';
             Swal.fire({
               icon: 'error',
-              title: 'Upload Gagal',
-              text: 'Gambar gagal diupload: ' + xhr.responseText,
+              title: 'Upload Failed',
+              text: message,
             });
           },
           complete: function () {
@@ -183,17 +180,18 @@ import Modal from './Modal.astro'
           success: function (res) {
             Swal.fire({
               icon: 'success',
-              title: 'Update Berhasil',
-              text: 'Gambar berhasil diperbarui.',
+              title: 'Update Successfully',
+              text: 'Image updated successfully.',
             }).then(() => {
               window.location.reload();
             });
           },
           error: function (xhr) {
+            const message = xhr.responseText || 'Unknown error';
             Swal.fire({
               icon: 'error',
-              title: 'Update Gagal',
-              text: 'Gambar gagal diperbarui: ' + xhr.responseText,
+              title: 'Update Failed',
+              text: message,
             });
           },
           complete: function () {

@@ -1,8 +1,11 @@
 ---
 import Header from "../components/Header.astro";
+import LoadingSpinner from "../components/LoadingSpinner.astro";
 import "../styles/global.css";
 import { Image } from 'astro:assets';
 import bgHome from '../assets/bgHome.png';
+import { supabase } from "../lib/supabase";
+const { data: { session } } = await supabase.auth.getSession();
 
 const { title, section, search } = Astro.props;
 ---
@@ -17,7 +20,7 @@ const { title, section, search } = Astro.props;
     <script src="https://kit.fontawesome.com/8bd97b3832.js" crossorigin="anonymous"></script>
   </head>
   <body class="relative min-h-screen">
-    <Header section={section} search={search}/>
+    <Header section={section} search={search} session={session}/>
     
     <Image 
       src={bgHome}
@@ -29,8 +32,9 @@ const { title, section, search } = Astro.props;
     <div class="w-full h-screen top-0 left-0 fixed object-cover bg-black/30 z-0"></div>
 
     <main class="relative">
-      <slot />
+      <slot session={session}/>
     </main>
 
+    <LoadingSpinner />
   </body>
 </html>

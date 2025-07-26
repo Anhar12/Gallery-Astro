@@ -1,6 +1,5 @@
 ---
-// src/components/Header.astro
-const { section, search } = Astro.props;
+const { section, search, session } = Astro.props;
 import Modal from './Modal.astro';
 import FormLogin from './FormLogin.astro';
 import FormRegis from './FormRegis.astro';
@@ -37,7 +36,7 @@ import FormRegis from './FormRegis.astro';
 
     {(section === 'All' || section == 'MyGallery') && (
       <form id='search-nav' method="GET" action='' class="flex w-1/3 text-white font-light text-sm group" autocomplete="off">
-        <input type="text" id="search" name="search" class="w-full h-6 px-1 border-b-[1px] border-transparent focus:border-white outline-none transition-all duration-300" placeholder="Cari Gambar" value={search}>
+        <input type="text" id="search" name="search" class="w-full h-6 px-1 border-b-[1px] border-slate-400 focus:border-white outline-none transition-all duration-300" placeholder="Cari Gambar" value={search}>
         <button id="submit-search" type="submit" class="px-3 cursor-pointer hover:scale-110 transition-all duration-300 text-slate-400 hover:text-white group-focus-within:text-white">
           <i class="fa-solid fa-magnifying-glass"></i>
         </button>
@@ -64,24 +63,34 @@ import FormRegis from './FormRegis.astro';
             All Gallery
           </a>
         </li>
-        <li>
-          <a href="/MyGallery" 
-            class={`relative inline-block after:absolute after:top-full after:h-[2px] after:transition-all after:duration-300 
-              ${section === 'MyGallery' 
-                ? 'after:w-full after:left-0 after:bg-sky-400 text-sky-400' 
-                : 'after:w-0 after:left-1/2 hover:after:w-full hover:after:left-0 after:bg-white'}`}>
-            My Gallery
-          </a>
-        </li>
-        <li>
-          <button id="login-button" class="relative group cursor-pointer">
-            <div class="relative z-10 bg-gradient-to-r from-sky-700 to-sky-900 text-white md:py-2 md:px-4 text-sm group-hover:from-sky-900 group-hover:to-sky-900 transition-colors duration-300 uppercase">
-              Login <i class="fa-solid fa-arrow-right-to-bracket ml-1"></i>
-            </div>
-
-            <div class="absolute z-0 w-full h-full border border-white transform -translate-y-1/2 -translate-x-1/2 left-[calc(50%+2px)] top-[calc(50%+2px)]"></div>
-          </button>
-        </li>
+        {session ? (
+          <li>
+            <a href="/MyGallery" 
+              class={`relative inline-block after:absolute after:top-full after:h-[2px] after:transition-all after:duration-300 
+                ${section === 'MyGallery' 
+                  ? 'after:w-full after:left-0 after:bg-sky-400 text-sky-400' 
+                  : 'after:w-0 after:left-1/2 hover:after:w-full hover:after:left-0 after:bg-white'}`}>
+              My Gallery
+            </a>
+          </li>
+          <li>
+            <button id="logout-button" class="relative group cursor-pointer">
+              <div class="relative z-10 bg-gradient-to-r from-sky-700 to-sky-900 text-white md:py-2 md:px-4 text-sm group-hover:from-sky-900 group-hover:to-sky-900 transition-colors duration-300 uppercase">
+                Logout <i class="fa-solid fa-arrow-right-from-bracket ml-1"></i>
+              </div>
+              <div class="absolute z-0 w-full h-full border border-white transform -translate-y-1/2 -translate-x-1/2 left-[calc(50%+2px)] top-[calc(50%+2px)]"></div>
+            </button>
+          </li>
+        ) : (
+          <li>
+            <button id="login-button" class="relative group cursor-pointer">
+              <div class="relative z-10 bg-gradient-to-r from-sky-700 to-sky-900 text-white md:py-2 md:px-4 text-sm group-hover:from-sky-900 group-hover:to-sky-900 transition-colors duration-300 uppercase">
+                Login <i class="fa-solid fa-arrow-right-to-bracket ml-1"></i>
+              </div>
+              <div class="absolute z-0 w-full h-full border border-white transform -translate-y-1/2 -translate-x-1/2 left-[calc(50%+2px)] top-[calc(50%+2px)]"></div>
+            </button>
+          </li>
+        )}
       </ul>
     </nav>
   </div>
@@ -93,7 +102,8 @@ import FormRegis from './FormRegis.astro';
 <Modal />
 
 <script>
-  // Scroll effect (desktop + mobile)
+  import Swal from 'sweetalert2';
+
   function scrollCheck() {
     const scroll = window.scrollY;
     if (scroll > 10) {
@@ -148,6 +158,14 @@ import FormRegis from './FormRegis.astro';
   sidebarCheck();
 
   function openModal() {
+    $('input').val('');
+    $('input').prev().removeClass('top-0 px-1 text-xs').addClass('top-1/2 text-sm');
+    
+    $('input[data-type="password"]').each(function () {
+      $(this).attr('type', 'password');
+      $(this).next().html('<i class="fa-solid fa-lock"></i>');
+    });
+
     $('#login-modal')
       .addClass('flex')
       .removeClass('hidden');
@@ -167,8 +185,6 @@ import FormRegis from './FormRegis.astro';
     $('#login-modal-body')
       .removeClass('modal-open')
       .addClass('modal-close');
-
-    $('input').val('');
   }
 
   $('#login-button, #login-button-mobile').click(function() {
@@ -200,5 +216,70 @@ import FormRegis from './FormRegis.astro';
     setTimeout(() => {
       openModal();
     }, 200);
+  });
+
+  let inputMap = [
+    '#email',
+    '#email-regis',
+    '#password',
+    '#password-regis',
+    '#full_name',
+    '#confirm-password',
+    '#name'
+  ];
+
+  inputMap.forEach(selector => {
+    const input = $(selector);
+
+    input.on('change', function () {
+      const val = $(this).val();
+      const label = $(this).prev();
+
+      if (val) {
+        label.addClass('top-0 px-1 text-xs').removeClass('top-1/2 text-sm');
+      } else {
+        label.removeClass('top-0 px-1 text-xs').addClass('top-1/2 text-sm');
+      }
+    });
+
+    const icon = input.next();
+
+    icon.on('click', function () {
+      if (input.attr('data-type') === 'password') {
+        if (input.attr('type') === 'password') {
+          input.attr('type', 'text');
+          $(this).html('<i class="fa-solid fa-unlock"></i>');
+        } else {
+          input.attr('type', 'password');
+          $(this).html('<i class="fa-solid fa-lock"></i>');
+        }
+      }
+
+      input.focus();
+    });
+  });
+
+  $('#logout-button').on('click', async function () {
+    $.ajax({
+      url: '/api/logout',
+      method: 'POST',
+      success: function (res) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Logout Successful',
+          text: 'You have been logged out.',
+        }).then(() => {
+          window.location.reload();
+        });
+      },
+      error: function (xhr) {
+        const message = xhr.responseText || 'Unknown error';
+        Swal.fire({
+          icon: 'error',
+          title: 'Logout Failed',
+          text: message,
+        });
+      }
+    });
   });
 </script>

@@ -3,127 +3,145 @@ import Template from "./Template.astro";
 import Upload from "../components/Upload.astro";
 import Detail from "../components/Detail.astro";
 import { supabase } from "../lib/supabase";
+const {
+  data: { session },
+} = await supabase.auth.getSession();
+const currentUserId = session?.user.id ?? null;
+console.log(currentUserId);
 
 const { data: images, error } = await supabase
-  .from("Gallery")
-  .select(`
+  .from("galleries")
+  .select(
+    `
     id, 
     name, 
-    url, 
-    created_date,
-    user(
+    url,
+    user_id(
+      id,
       full_name
     )
-  `)
-  .order("id", { ascending: false });
+  `,
+  )
+  .order("created_at", { ascending: false })
+  .eq("user_id", currentUserId);
 ---
 
 <Template title="My Gallery" section="MyGallery">
   <div class="relative min-h-screen py-20 md:px-12 md:space-y-6 space-y-2">
     <Upload />
-    
+
     <div>
-        {error && (
-            <p class="text-red-500 text-center mb-4">Gagal memuat gambar: {error.message}</p>
-        )}
+      { images && images.length > 0 ? (
+          <div class="gallery-masonry p-3">
+            {images.map((img) => (
+              <div
+                class="gallery-item cursor-pointer hover:shadow-[0_0_10px_rgba(115,212,255,0.3)] transition-shadow duration-300 shadow-sky-200 p-2 relative"
+                key={img.id}
+                data-name={img.name}
+                data-url={img.url}
+              >
+                <div class="flex justify-between items-center pb-2 pt-1 px-1">
+                  <div>
+                    <p class="text-white text-sm md:text-md">
+                      {img.user_id?.full_name ?? ""}
+                    </p>
+                  </div>
 
-        <div
-            id="not-found"
-            class="text-center text-gray-400 hidden"
-        >
-        Tidak ada gambar yang ditemukan.
-        </div>
+                  <div class="flex gap-3 text-sm md:text-md">
+                    <button
+                      data-id={img.id}
+                      data-name={img.name}
+                      class="edit-button text-yellow-400 cursor-pointer transition-all duration-300 hover:scale-110"
+                    >
+                      <i class="fa-solid fa-pen" />
+                    </button>
 
-        <div class="gallery-masonry p-3">
-          {images.map((img) => (
-            <div class="gallery-item cursor-pointer hover:shadow-[0_0_10px_rgba(115,212,255,0.3)] transition-shadow duration-300 shadow-sky-200 p-2 relative" key={img.id} data-name={img.name} data-url={img.url}>
-              <div class="flex justify-between items-center pb-2 pt-1 px-1">
-                <div>
-                  <p class="text-white text-sm md:text-md">
-                    {/* {img.user? img.user.full_name : ""} */}
-                  </p>
+                    <button
+                      data-id={img.id}
+                      data-url={img.url}
+                      class="delete-button text-red-500 cursor-pointer transition-all duration-300 hover:scale-110"
+                    >
+                      <i class="fa-solid fa-trash" />
+                    </button>
+                  </div>
                 </div>
 
-                <div class="flex gap-3 text-sm md:text-md">
-                  <button data-id={img.id} data-name={img.name} class="edit-button text-yellow-400 cursor-pointer transition-all duration-300 hover:scale-110">
-                    <i class="fa-solid fa-pen"></i>
-                  </button>
-
-                  <button data-id={img.id} data-url={img.url} class="delete-button text-red-500 cursor-pointer transition-all duration-300 hover:scale-110">
-                    <i class="fa-solid fa-trash"></i>
-                  </button>
-                </div>
+                <img src={img.url} alt={img.name} loading="lazy" />
+                <p class="text-white text-sm md:text-md text-center pt-2">
+                  {img.name}
+                </p>
               </div>
-
-              <img src={img.url} alt={img.name} loading="lazy" />
-              
-              <p class="text-white text-sm md:text-md text-center pt-2">{img.name}</p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div class="text-center text-gray-400 mt-4">
+            Belum ada gambar yang diunggah.
+          </div>
+        )
+      }
     </div>
     <Detail />
   </div>
 </Template>
 
 <script>
-  import Swal from 'sweetalert2';
+  import Swal from "sweetalert2";
 
-  function showLoading(){
-    $('#loading-spinner').removeClass('hidden');
+  function showLoading() {
+    $("#loading-spinner").removeClass("hidden");
   }
 
-  function hideLoading(){
-    $('#loading-spinner').addClass('hidden');
+  function hideLoading() {
+    $("#loading-spinner").addClass("hidden");
   }
 
-  $('.delete-button').on('click', function (e) {
+  $(".delete-button").on("click", function (e) {
     e.stopPropagation();
-    const id = $(this).data('id');
-    const url = $(this).data('url');
+    const id = $(this).data("id");
+    const url = $(this).data("url");
 
     Swal.fire({
-      title: 'Hapus Gambar',
-      text: 'Apakah Anda yakin ingin menghapus gambar ini?',
-      icon: 'warning',
+      title: "Hapus Gambar",
+      text: "Apakah Anda yakin ingin menghapus gambar ini?",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Hapus',
-      cancelButtonText: 'Batal'
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Hapus",
+      cancelButtonText: "Batal",
     }).then(function (result) {
       if (result.isConfirmed) {
         $.ajax({
-          url: '/api/gallery',
-          type: 'DELETE',
-          data: {id, url},
+          url: "/api/gallery",
+          type: "DELETE",
+          data: { id, url },
           beforeSend: function () {
             showLoading();
           },
           success: function (res) {
             Swal.fire({
-              icon: 'success',
-              title: 'Hapus Berhasil',
-              text: 'Gambar berhasil dihapus.',
+              icon: "success",
+              title: "Delete Successfully",
+              text: "Image deleted successfully.",
             }).then(() => {
               window.location.reload();
             });
           },
           error: function (xhr) {
+            const message = xhr.responseText || "Unknown error";
             Swal.fire({
-              icon: 'error',
-              title: 'Hapus Gagal',
-              text: 'Gambar gagal dihapus: ' + xhr.responseText,
+              icon: "error",
+              title: "Delete Failed",
+              text: message,
             });
           },
           complete: function () {
             hideLoading();
-          }
+          },
         });
       }
-    }); 
-  }); 
+    });
+  });
 </script>
-
 
 <script src="../scripts/search.js"></script>

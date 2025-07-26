@@ -3,10 +3,10 @@ let search = $('#search').val();
 function searchActive() {
     $('#search-nav #search')
         .addClass('border-white')
-        .removeClass('border-transparent');
+        .removeClass('border-slate-400');
     $('#search-mob #search-mobile')
         .addClass('border-white')
-        .removeClass('border-transparent');
+        .removeClass('border-slate-400');
 
     $('#search-nav #submit-search')
         .addClass('text-white scale-110')
@@ -18,10 +18,10 @@ function searchActive() {
 
 function searchInactive() {
     $('#search-nav #search')
-        .addClass('border-transparent')
+        .addClass('border-slate-400')
         .removeClass('border-white');
     $('#search-mob #search-mobile')
-        .addClass('border-transparent')
+        .addClass('border-slate-400')
         .removeClass('border-white');
 
     $('#search-nav #submit-search')

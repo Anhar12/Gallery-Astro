@@ -5,39 +5,69 @@ import Detail from "../components/Detail.astro";
 import { supabase } from "../lib/supabase";
 
 const { data: images, error } = await supabase
-  .from("Gallery")
-  .select("id, name, url")
-  .order("id", { ascending: false });
+  .from("galleries")
+  .select(
+    `
+    id, 
+    name, 
+    url,
+    user_id (
+      id,
+      full_name
+    )
+  `,
+  )
+  .order("created_at", { ascending: false });
 ---
 
 <Template title="All Gallery" section="All">
   <div class="relative min-h-screen py-20 md:px-12 md:space-y-6 space-y-2">
-    <form id="search-mob" method="GET" action='' class="flex w-full text-white font-light text-sm group md:hidden px-4" autocomplete="off">
-      <input type="text" id="search-mobile" name="search-mobile" class="w-full h-6 px-1 border-b-[1px] border-transparent focus:border-white outline-none transition-all duration-300" placeholder="Cari Gambar">
-      <button id="submit-search-mobile" type="submit" class="px-3 cursor-pointer hover:scale-110 transition-all duration-300 text-slate-400 hover:text-white group-focus-within:text-white">
+    <form
+      id="search-mob"
+      method="GET"
+      action=""
+      class="flex w-full text-white font-light text-sm group md:hidden px-4"
+      autocomplete="off"
+    >
+      <input
+        type="text"
+        id="search-mobile"
+        name="search-mobile"
+        class="w-full h-6 px-1 border-b-[1px] border-transparent focus:border-white outline-none transition-all duration-300"
+        placeholder="Cari Gambar"
+      />
+      <button
+        id="submit-search-mobile"
+        type="submit"
+        class="px-3 cursor-pointer hover:scale-110 transition-all duration-300 text-slate-400 hover:text-white group-focus-within:text-white"
+      >
         <i class="fa-solid fa-magnifying-glass"></i>
       </button>
     </form>
 
-    {error && (
-      <p class="text-red-500 text-center mb-4">Gagal memuat gambar: {error.message}</p>
-    )}
-
-    <div
-      id="not-found"
-      class="text-center text-gray-400 hidden"
-    >
-      Tidak ada gambar yang ditemukan.
-    </div>
-
-    <div class="gallery-masonry">
-      {images.map((img) => (
-        <div class="gallery-item cursor-pointer hover:shadow-[0_0_10px_rgba(115,212,255,0.3)] transition-shadow duration-300 shadow-sky-200 p-2" key={img.id} data-name={img.name} data-url={img.url} data-date={new Date(img.created_date).toLocaleDateString()}>
-          <img src={img.url} alt={img.name} loading="lazy" class="w-full" />
-          <p class="caption">{img.name}</p>
+    {
+      images && images.length > 0 ? (
+        <div class="gallery-masonry p-3">
+          {images.map((img) => (
+            <div
+              class="gallery-item cursor-pointer hover:shadow-[0_0_10px_rgba(115,212,255,0.3)] transition-shadow duration-300 shadow-sky-200 p-2 relative"
+              key={img.id}
+              data-name={img.name}
+              data-url={img.url}
+            >
+              <img src={img.url} alt={img.name} loading="lazy" />
+              <p class="text-white text-sm md:text-md text-center pt-2">
+                {img.name}
+              </p>
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
+      ) : (
+        <div class="text-center text-gray-400 mt-4">
+          Belum ada gambar yang diunggah.
+        </div>
+      )
+    }
   </div>
 
   <Detail />
